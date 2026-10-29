@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "automated-job-application-tracker"
+version = "1.0.0"
+description = "A production-oriented full-stack web application for job application tracking, interview management, and analytics."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [
+    { name = "Developer Portfolio Project" }
+]
+dependencies = [
+    "Flask>=3.0.0",
+    "Flask-SQLAlchemy>=3.1.0",
+    "Flask-Migrate>=4.0.0",
+    "Flask-Login>=0.6.3",
+    "Flask-WTF>=1.2.0",
+    "WTForms>=3.1.0",
+    "email-validator>=2.1.0",
+    "SQLAlchemy>=2.0.0",
+    "Alembic>=1.13.0",
+    "psycopg[binary]>=3.1.0",
+    "python-dotenv>=1.0.0",
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.0",
+    "python-dateutil>=2.9.0",
+    "APScheduler>=3.10.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["migrations"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+pythonpath = ["."]
+addopts = "-v --strict-markers"
