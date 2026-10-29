@@ -9,26 +9,46 @@
       <h1 style="font-size: 22px; margin-bottom: 6px;">Create account</h1>
       <p class="text-sm">Start tracking and organizing your job search today.</p>
     </div>
-    <form method="POST" action="{{ url_for('auth.register') }}">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <form method="POST" action="{{ url_for('auth.register') }}" novalidate>
+      {{ form.hidden_tag() }}
+
       <div class="form-group">
-        <label class="form-label" for="full_name">Full name</label>
-        <input type="text" id="full_name" name="full_name" class="form-control" required autocomplete="name" autofocus>
+        <label class="form-label" for="full_name">{{ form.full_name.label.text }}</label>
+        {{ form.full_name(class="form-control" + (" is-invalid" if form.full_name.errors else ""), id="full_name", autocomplete="name", autofocus=true) }}
+        {% for error in form.full_name.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
       </div>
+
       <div class="form-group">
-        <label class="form-label" for="email">Email address</label>
-        <input type="email" id="email" name="email" class="form-control" required autocomplete="email">
+        <label class="form-label" for="email">{{ form.email.label.text }}</label>
+        {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), id="email", autocomplete="email") }}
+        {% for error in form.email.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
       </div>
+
       <div class="form-group">
-        <label class="form-label" for="password">Password</label>
-        <input type="password" id="password" name="password" class="form-control" required autocomplete="new-password">
+        <label class="form-label" for="password">{{ form.password.label.text }}</label>
+        {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), id="password", autocomplete="new-password") }}
+        <div class="form-text">Must be at least 8 characters long.</div>
+        {% for error in form.password.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
       </div>
+
       <div class="form-group">
-        <label class="form-label" for="confirm_password">Confirm password</label>
-        <input type="password" id="confirm_password" name="confirm_password" class="form-control" required autocomplete="new-password">
+        <label class="form-label" for="confirm_password">{{ form.confirm_password.label.text }}</label>
+        {{ form.confirm_password(class="form-control" + (" is-invalid" if form.confirm_password.errors else ""), id="confirm_password", autocomplete="new-password") }}
+        {% for error in form.confirm_password.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
       </div>
-      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 8px;">Create account</button>
+
+      {{ form.submit(class="btn btn-primary", style="width: 100%; margin-top: 8px;") }}
     </form>
+
     <div style="text-align: center; margin-top: 18px; font-size: 13px;">
       <span class="text-muted">Already have an account?</span>
       <a href="{{ url_for('auth.login') }}">Sign in</a>
@@ -36,4 +56,3 @@
   </div>
 </div>
 {% endblock %}
-
