@@ -1,17 +1,168 @@
 {% extends "base.html" %}
 
 {% block title %}Applications{% endblock %}
-{% block page_title %}Applications{% endblock %}
+{% block page_title %}Job Applications{% endblock %}
 
-{% block content %}
-<div class="empty-state">
-  <i data-lucide="file-text" class="empty-state-icon"></i>
-  <h2 class="empty-state-title">No applications yet</h2>
-  <p class="empty-state-desc">Start tracking your job search by adding your first application.</p>
-  <button type="button" class="btn btn-primary">
-    <i data-lucide="plus"></i>
-    <span>Add application</span>
-  </button>
-</div>
+{% block topbar_actions %}
+<a href="{{ url_for('applications.create') }}" class="btn btn-primary btn-sm">
+  <i data-lucide="plus"></i>
+  <span>Add Application</span>
+</a>
 {% endblock %}
 
+{% block content %}
+<div class="card" style="margin-bottom: 20px;">
+  <!-- Filters & Search Toolbar -->
+  <form method="GET" action="{{ url_for('applications.index') }}" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;">
+    <div style="display: flex; flex-wrap: wrap; gap: 10px; flex-grow: 1; max-width: 700px;">
+      <div style="flex-grow: 1; min-width: 200px;">
+        <input type="text" name="q" value="{{ search_query }}" class="form-control" placeholder="Search company, job title, or location...">
+      </div>
+      <div style="width: 160px;">
+        <select name="status" class="form-select" onchange="this.form.submit()">
+          <option value="">All Statuses</option>
+          {% for st in statuses %}
+            <option value="{{ st }}" {% if status_filter == st %}selected{% endif %}>{{ st }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div style="width: 150px;">
+        <select name="sort" class="form-select" onchange="this.form.submit()">
+          <option value="created_desc" {% if sort_by == 'created_desc' %}selected{% endif %}>Newest first</option>
+          <option value="created_asc" {% if sort_by == 'created_asc' %}selected{% endif %}>Oldest first</option>
+          <option value="company_asc" {% if sort_by == 'company_asc' %}selected{% endif %}>Company (A-Z)</option>
+          <option value="deadline_asc" {% if sort_by == 'deadline_asc' %}selected{% endif %}>Upcoming deadline</option>
+          <option value="applied_desc" {% if sort_by == 'applied_desc' %}selected{% endif %}>Applied date</option>
+        </select>
+      </div>
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <button type="submit" class="btn btn-secondary btn-sm">Filter</button>
+      {% if search_query or status_filter or arrangement_filter or sort_by != 'created_desc' %}
+        <a href="{{ url_for('applications.index') }}" class="btn btn-secondary btn-sm" style="color: var(--text-secondary);">Clear</a>
+      {% endif %}
+      <a href="{{ url_for('applications.create') }}" class="btn btn-primary btn-sm">
+        <i data-lucide="plus"></i>
+        <span>Add Application</span>
+      </a>
+    </div>
+  </form>
+</div>
+
+{% if applications %}
+  <div class="card" style="padding: 0; overflow: hidden;">
+    <div class="table-responsive" style="border: none;">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>Position</th>
+            <th>Status</th>
+            <th>Applied Date</th>
+            <th>Deadline</th>
+            <th style="text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for app in applications %}
+            <tr>
+              <td>
+                <div style="font-weight: 600; color: var(--text-primary);">
+                  <a href="{{ url_for('applications.detail', app_id=app.id) }}" style="color: inherit;">
+                    {{ app.company_name }}
+                  </a>
+                </div>
+                {% if app.location %}
+                  <div class="text-sm text-muted">{{ app.location }}</div>
+                {% endif %}
+              </td>
+              <td>
+                <div>{{ app.job_title }}</div>
+                <div class="text-sm text-muted">
+                  {% if app.employment_type %}{{ app.employment_type }}{% endif %}
+                  {% if app.work_arrangement %} &bull; {{ app.work_arrangement }}{% endif %}
+                </div>
+              </td>
+              <td>
+                <span class="badge badge-{{ app.status.lower() }}">
+                  {{ app.status }}
+                </span>
+              </td>
+              <td class="text-sm text-muted">
+                {{ app.applied_at.strftime('%b %d, %Y') if app.applied_at else '&mdash;' | safe }}
+              </td>
+              <td class="text-sm">
+                {% if app.deadline %}
+                  <span>{{ app.deadline.strftime('%b %d, %Y') }}</span>
+                {% else %}
+                  <span class="text-muted">&mdash;</span>
+                {% endif %}
+              </td>
+              <td style="text-align: right;">
+                <div style="display: inline-flex; gap: 6px; align-items: center;">
+                  <a href="{{ url_for('applications.detail', app_id=app.id) }}" class="btn btn-secondary btn-sm" title="View Details">
+                    <i data-lucide="eye"></i>
+                  </a>
+                  <a href="{{ url_for('applications.edit', app_id=app.id) }}" class="btn btn-secondary btn-sm" title="Edit">
+                    <i data-lucide="edit-2"></i>
+                  </a>
+                  <form action="{{ url_for('applications.delete', app_id=app.id) }}" method="POST" onsubmit="return confirm('Delete application for {{ app.company_name }}?');" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger btn-sm" title="Delete">
+                      <i data-lucide="trash-2"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if pagination.pages > 1 %}
+      <div style="padding: 12px 18px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+        <span class="text-sm text-muted">
+          Showing {{ pagination.items | length }} of {{ pagination.total }} applications
+        </span>
+        <div class="pagination">
+          {% if pagination.has_prev %}
+            <a href="{{ url_for('applications.index', page=pagination.prev_num, q=search_query, status=status_filter, sort=sort_by) }}" class="page-link">&laquo;</a>
+          {% else %}
+            <span class="page-link disabled">&laquo;</span>
+          {% endif %}
+
+          {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if p %}
+              {% if p == pagination.page %}
+                <span class="page-link active">{{ p }}</span>
+              {% else %}
+                <a href="{{ url_for('applications.index', page=p, q=search_query, status=status_filter, sort=sort_by) }}" class="page-link">{{ p }}</a>
+              {% endif %}
+            {% else %}
+              <span class="page-link disabled">&hellip;</span>
+            {% endif %}
+          {% endfor %}
+
+          {% if pagination.has_next %}
+            <a href="{{ url_for('applications.index', page=pagination.next_num, q=search_query, status=status_filter, sort=sort_by) }}" class="page-link">&raquo;</a>
+          {% else %}
+            <span class="page-link disabled">&raquo;</span>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+{% else %}
+  <div class="empty-state">
+    <i data-lucide="file-text" class="empty-state-icon"></i>
+    <h2 class="empty-state-title">No applications yet</h2>
+    <p class="empty-state-desc">Start tracking your job search by adding your first application.</p>
+    <a href="{{ url_for('applications.create') }}" class="btn btn-primary">
+      <i data-lucide="plus"></i>
+      <span>Add application</span>
+    </a>
+  </div>
+{% endif %}
+{% endblock %}

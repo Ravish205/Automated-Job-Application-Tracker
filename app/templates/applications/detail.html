@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}{{ application.company_name }} - {{ application.job_title }}{% endblock %}
+{% block page_title %}Application Details{% endblock %}
+
+{% block topbar_actions %}
+<div style="display: flex; gap: 8px;">
+  <a href="{{ url_for('applications.edit', app_id=application.id) }}" class="btn btn-secondary btn-sm">
+    <i data-lucide="edit-2"></i>
+    <span>Edit</span>
+  </a>
+  <a href="{{ url_for('applications.index') }}" class="btn btn-secondary btn-sm">
+    <span>Back to list</span>
+  </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+  <!-- Main Details Column -->
+  <div style="display: flex; flex-direction: column; gap: 20px;">
+    <!-- Header Card -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+        <div>
+          <h2 style="font-size: 22px; margin-bottom: 4px;">{{ application.company_name }}</h2>
+          <div style="font-size: 16px; color: var(--text-secondary); font-weight: 500;">
+            {{ application.job_title }}
+          </div>
+          {% if application.job_url %}
+            <div style="margin-top: 6px;">
+              <a href="{{ application.job_url }}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 4px; font-size: 13px;">
+                <span>View original job posting</span>
+                <i data-lucide="external-link" style="width: 13px; height: 13px;"></i>
+              </a>
+            </div>
+          {% endif %}
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <!-- Quick Status Changer -->
+          <form action="{{ url_for('applications.update_status', app_id=application.id) }}" method="POST" style="display: inline-block;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <select name="status" class="form-select" onchange="this.form.submit()" style="font-weight: 600; padding: 4px 10px; font-size: 13px;">
+              {% for st in statuses %}
+                <option value="{{ st }}" {% if application.status == st %}selected{% endif %}>{{ st }}</option>
+              {% endfor %}
+            </select>
+          </form>
+        </div>
+      </div>
+
+      <!-- Key Metadata Grid -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; padding: 14px; background: var(--background-secondary); border-radius: var(--radius-md); border: 1px solid var(--border);">
+        <div>
+          <span class="text-sm text-muted" style="display: block;">Location</span>
+          <span style="font-weight: 500;">{{ application.location or '&mdash;' | safe }}</span>
+        </div>
+        <div>
+          <span class="text-sm text-muted" style="display: block;">Arrangement</span>
+          <span style="font-weight: 500;">{{ application.work_arrangement or '&mdash;' | safe }}</span>
+        </div>
+        <div>
+          <span class="text-sm text-muted" style="display: block;">Employment Type</span>
+          <span style="font-weight: 500;">{{ application.employment_type or '&mdash;' | safe }}</span>
+        </div>
+        <div>
+          <span class="text-sm text-muted" style="display: block;">Compensation</span>
+          <span style="font-weight: 500;">{{ application.salary or '&mdash;' | safe }}</span>
+        </div>
+        <div>
+          <span class="text-sm text-muted" style="display: block;">Applied Date</span>
+          <span style="font-weight: 500;">{{ application.applied_at.strftime('%b %d, %Y') if application.applied_at else '&mdash;' | safe }}</span>
+        </div>
+        <div>
+          <span class="text-sm text-muted" style="display: block;">Deadline</span>
+          <span style="font-weight: 500;">{{ application.deadline.strftime('%b %d, %Y') if application.deadline else '&mdash;' | safe }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes Card -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Notes & Details</h3>
+      </div>
+      {% if application.notes %}
+        <div style="white-space: pre-wrap; font-size: 14px; line-height: 1.6; color: var(--text-primary);">
+          {{ application.notes }}
+        </div>
+      {% else %}
+        <p class="text-muted text-sm">No notes entered for this application. <a href="{{ url_for('applications.edit', app_id=application.id) }}">Add notes</a>.</p>
+      {% endif %}
+    </div>
+
+    <!-- Interviews Section -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Interview Rounds</h3>
+      </div>
+      {% if application.interviews %}
+        <div class="table-responsive" style="border: none;">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Stage</th>
+                <th>Scheduled Date</th>
+                <th>Location / Link</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for iv in application.interviews %}
+                <tr>
+                  <td style="font-weight: 500;">{{ iv.interview_type }}</td>
+                  <td>{{ iv.scheduled_at.strftime('%b %d, %Y at %I:%M %p') }}</td>
+                  <td>
+                    {% if iv.meeting_location %}
+                      {% if iv.meeting_location.startswith('http') %}
+                        <a href="{{ iv.meeting_location }}" target="_blank" rel="noopener noreferrer">Join Link &rarr;</a>
+                      {% else %}
+                        {{ iv.meeting_location }}
+                      {% endif %}
+                    {% else %}
+                      <span class="text-muted">&mdash;</span>
+                    {% endif %}
+                  </td>
+                  <td><span class="badge">{{ iv.status }}</span></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-muted text-sm">No interviews scheduled yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Sidebar Column: Attached Resume & Activity Timeline -->
+  <div style="display: flex; flex-direction: column; gap: 20px;">
+    <!-- Associated Resume -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Attached Resume</h3>
+      </div>
+      {% if application.resume %}
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--background-secondary); border: 1px solid var(--border); border-radius: var(--radius-md);">
+          <div style="display: flex; align-items: center; gap: 10px; overflow: hidden;">
+            <i data-lucide="file-text" style="color: var(--primary); flex-shrink: 0;"></i>
+            <div style="overflow: hidden;">
+              <div style="font-weight: 500; font-size: 13px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                {{ application.resume.original_filename }}
+              </div>
+              <span class="text-sm text-muted">
+                {{ (application.resume.file_size / 1024) | round(1) }} KB
+              </span>
+            </div>
+          </div>
+          <a href="{{ url_for('resumes.download', resume_id=application.resume.id) }}" class="btn btn-secondary btn-sm" title="Download">
+            <i data-lucide="download"></i>
+          </a>
+        </div>
+      {% else %}
+        <p class="text-muted text-sm" style="margin-bottom: 12px;">No resume version linked to this application.</p>
+        <a href="{{ url_for('applications.edit', app_id=application.id) }}" class="btn btn-secondary btn-sm" style="width: 100%;">
+          Attach a resume
+        </a>
+      {% endif %}
+    </div>
+
+    <!-- Activity History -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Activity History</h3>
+      </div>
+      {% if application.activities %}
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          {% for act in application.activities %}
+            <div style="display: flex; gap: 10px; font-size: 13px;">
+              <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--primary); margin-top: 6px; flex-shrink: 0;"></div>
+              <div>
+                <div style="color: var(--text-primary);">{{ act.description }}</div>
+                <div class="text-sm text-muted">{{ act.created_at.strftime('%b %d, %Y &bull; %I:%M %p') | safe }}</div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-muted text-sm">No activity recorded yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

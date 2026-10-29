@@ -1,17 +1,193 @@
 {% extends "base.html" %}
 
 {% block title %}Dashboard{% endblock %}
-{% block page_title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard Overview{% endblock %}
 
-{% block content %}
-<div class="empty-state">
-  <i data-lucide="inbox" class="empty-state-icon"></i>
-  <h2 class="empty-state-title">No applications yet</h2>
-  <p class="empty-state-desc">Start tracking your job search by adding your first application.</p>
-  <a href="{{ url_for('applications.index') }}" class="btn btn-primary">
-    <i data-lucide="plus"></i>
-    <span>Add application</span>
-  </a>
-</div>
+{% block topbar_actions %}
+<a href="{{ url_for('applications.create') }}" class="btn btn-primary btn-sm">
+  <i data-lucide="plus"></i>
+  <span>Add Application</span>
+</a>
 {% endblock %}
 
+{% block content %}
+<!-- Metric Cards -->
+<div class="metrics-grid">
+  <div class="metric-card">
+    <div class="metric-header">
+      <span>Total Applications</span>
+      <i data-lucide="briefcase" style="width: 16px; height: 16px;"></i>
+    </div>
+    <div class="metric-value">{{ total_applications }}</div>
+    <div class="metric-sub">Tracked opportunities</div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-header">
+      <span>Active Pipeline</span>
+      <i data-lucide="trending-up" style="width: 16px; height: 16px; color: var(--primary);"></i>
+    </div>
+    <div class="metric-value">{{ active_applications }}</div>
+    <div class="metric-sub">In progress</div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-header">
+      <span>Interviews</span>
+      <i data-lucide="calendar" style="width: 16px; height: 16px; color: var(--warning);"></i>
+    </div>
+    <div class="metric-value">{{ interviews_count }}</div>
+    <div class="metric-sub">Rounds scheduled</div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-header">
+      <span>Offers</span>
+      <i data-lucide="check-circle" style="width: 16px; height: 16px; color: var(--success);"></i>
+    </div>
+    <div class="metric-value">{{ offers_count }}</div>
+    <div class="metric-sub">Job offers received</div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-header">
+      <span>Upcoming Deadlines</span>
+      <i data-lucide="clock" style="width: 16px; height: 16px; color: var(--error);"></i>
+    </div>
+    <div class="metric-value">{{ upcoming_deadlines | length }}</div>
+    <div class="metric-sub">Action items</div>
+  </div>
+</div>
+
+{% if total_applications > 0 %}
+  <div class="dashboard-split">
+    <!-- Left: Applications Table -->
+    <div class="card" style="padding: 0; overflow: hidden;">
+      <div style="padding: 16px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+        <h2 class="card-title" style="margin: 0;">Recent Applications</h2>
+        <a href="{{ url_for('applications.index') }}" class="text-sm">View all &rarr;</a>
+      </div>
+
+      <div class="table-responsive" style="border: none;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Position</th>
+              <th>Status</th>
+              <th>Applied Date</th>
+              <th>Deadline</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for app in recent_applications %}
+              <tr>
+                <td>
+                  <a href="{{ url_for('applications.detail', app_id=app.id) }}" style="font-weight: 600; color: var(--text-primary);">
+                    {{ app.company_name }}
+                  </a>
+                </td>
+                <td>
+                  <div>{{ app.job_title }}</div>
+                  {% if app.location %}<div class="text-sm text-muted">{{ app.location }}</div>{% endif %}
+                </td>
+                <td>
+                  <span class="badge badge-{{ app.status.lower() }}">
+                    {{ app.status }}
+                  </span>
+                </td>
+                <td class="text-sm text-muted">
+                  {{ app.applied_at.strftime('%b %d, %Y') if app.applied_at else '&mdash;' | safe }}
+                </td>
+                <td class="text-sm">
+                  {% if app.deadline %}
+                    <span>{{ app.deadline.strftime('%b %d, %Y') }}</span>
+                  {% else %}
+                    <span class="text-muted">&mdash;</span>
+                  {% endif %}
+                </td>
+                <td style="text-align: right;">
+                  <a href="{{ url_for('applications.detail', app_id=app.id) }}" class="btn btn-secondary btn-sm" title="View Details">
+                    <i data-lucide="eye"></i>
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right: Deadlines & Activity -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      <!-- Upcoming Deadlines -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Upcoming Deadlines</h3>
+        </div>
+        {% if upcoming_deadlines %}
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            {% for app in upcoming_deadlines %}
+              {% set days_left = app.deadline | days_remaining %}
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--background-secondary); border-radius: var(--radius-md); border: 1px solid var(--border);">
+                <div>
+                  <div style="font-weight: 600; font-size: 13px;">{{ app.company_name }}</div>
+                  <div class="text-sm text-muted">{{ app.job_title }}</div>
+                </div>
+                <div style="text-align: right;">
+                  <div class="text-sm" style="font-weight: 500;">{{ app.deadline.strftime('%b %d') }}</div>
+                  {% if days_left < 0 %}
+                    <span class="text-sm text-error" style="font-weight: 600;">Overdue</span>
+                  {% elif days_left == 0 %}
+                    <span class="text-sm text-error" style="font-weight: 600;">Due today</span>
+                  {% elif days_left <= 3 %}
+                    <span class="text-sm text-warning" style="font-weight: 600;">{{ days_left }} days left</span>
+                  {% else %}
+                    <span class="text-sm text-muted">{{ days_left }} days left</span>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted text-sm">No upcoming application deadlines.</p>
+        {% endif %}
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Recent Activity</h3>
+        </div>
+        {% if recent_activities %}
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            {% for act in recent_activities %}
+              <div style="display: flex; gap: 10px; font-size: 13px;">
+                <div style="width: 6px; height: 6px; border-radius: 50%; background: var(--primary); margin-top: 7px; flex-shrink: 0;"></div>
+                <div>
+                  <div style="color: var(--text-primary);">{{ act.description }}</div>
+                  <div class="text-sm text-muted">{{ act.created_at.strftime('%b %d &bull; %I:%M %p') | safe }}</div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted text-sm">No recent activity recorded.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% else %}
+  <!-- Empty State matching Section 8 requirements -->
+  <div class="empty-state">
+    <i data-lucide="inbox" class="empty-state-icon"></i>
+    <h2 class="empty-state-title">No applications yet</h2>
+    <p class="empty-state-desc">Start tracking your job search by adding your first application.</p>
+    <a href="{{ url_for('applications.create') }}" class="btn btn-primary">
+      <i data-lucide="plus"></i>
+      <span>Add application</span>
+    </a>
+  </div>
+{% endif %}
+{% endblock %}

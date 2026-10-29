@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Add Application{% endblock %}
+{% block page_title %}New Job Application{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title">Add Job Application</h2>
+        <p class="text-sm">Record role details, application date, and attach a resume version.</p>
+      </div>
+      <a href="{{ url_for('applications.index') }}" class="btn btn-secondary btn-sm">Cancel</a>
+    </div>
+
+    <form method="POST" action="{{ url_for('applications.create') }}" novalidate>
+      {{ form.hidden_tag() }}
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <!-- Company Name -->
+        <div class="form-group">
+          <label class="form-label" for="company_name">{{ form.company_name.label.text }} <span class="text-error">*</span></label>
+          {{ form.company_name(class="form-control" + (" is-invalid" if form.company_name.errors else ""), id="company_name", placeholder="e.g. Acme Corp", autofocus=true) }}
+          {% for error in form.company_name.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <!-- Job Title -->
+        <div class="form-group">
+          <label class="form-label" for="job_title">{{ form.job_title.label.text }} <span class="text-error">*</span></label>
+          {{ form.job_title(class="form-control" + (" is-invalid" if form.job_title.errors else ""), id="job_title", placeholder="e.g. Senior Software Engineer") }}
+          {% for error in form.job_title.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <!-- Job URL -->
+        <div class="form-group">
+          <label class="form-label" for="job_url">{{ form.job_url.label.text }}</label>
+          {{ form.job_url(class="form-control" + (" is-invalid" if form.job_url.errors else ""), id="job_url", placeholder="https://company.com/jobs/123") }}
+          {% for error in form.job_url.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <!-- Location -->
+        <div class="form-group">
+          <label class="form-label" for="location">{{ form.location.label.text }}</label>
+          {{ form.location(class="form-control" + (" is-invalid" if form.location.errors else ""), id="location", placeholder="e.g. San Francisco, CA or Remote") }}
+          {% for error in form.location.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+        <!-- Employment Type -->
+        <div class="form-group">
+          <label class="form-label" for="employment_type">{{ form.employment_type.label.text }}</label>
+          {{ form.employment_type(class="form-select", id="employment_type") }}
+        </div>
+
+        <!-- Work Arrangement -->
+        <div class="form-group">
+          <label class="form-label" for="work_arrangement">{{ form.work_arrangement.label.text }}</label>
+          {{ form.work_arrangement(class="form-select", id="work_arrangement") }}
+        </div>
+
+        <!-- Salary -->
+        <div class="form-group">
+          <label class="form-label" for="salary">{{ form.salary.label.text }}</label>
+          {{ form.salary(class="form-control", id="salary", placeholder="e.g. $140k - $160k") }}
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+        <!-- Status -->
+        <div class="form-group">
+          <label class="form-label" for="status">{{ form.status.label.text }}</label>
+          {{ form.status(class="form-select", id="status") }}
+        </div>
+
+        <!-- Applied Date -->
+        <div class="form-group">
+          <label class="form-label" for="applied_at">{{ form.applied_at.label.text }}</label>
+          {{ form.applied_at(class="form-control", id="applied_at", type="date") }}
+        </div>
+
+        <!-- Deadline -->
+        <div class="form-group">
+          <label class="form-label" for="deadline">{{ form.deadline.label.text }}</label>
+          {{ form.deadline(class="form-control", id="deadline", type="date") }}
+        </div>
+      </div>
+
+      <!-- Resume Associated -->
+      <div class="form-group">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <label class="form-label" for="resume_id" style="margin-bottom: 0;">{{ form.resume_id.label.text }}</label>
+          <a href="{{ url_for('resumes.index') }}" target="_blank" class="text-sm">Manage resumes &rarr;</a>
+        </div>
+        {{ form.resume_id(class="form-select", id="resume_id") }}
+        <div class="form-text">Select which uploaded resume version was submitted for this role.</div>
+      </div>
+
+      <!-- Notes -->
+      <div class="form-group">
+        <label class="form-label" for="notes">{{ form.notes.label.text }}</label>
+        {{ form.notes(class="form-control", id="notes", rows=4, placeholder="Interview preparation notes, key contact names, referral information, or requirements...") }}
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);">
+        <a href="{{ url_for('applications.index') }}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">Save Application</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

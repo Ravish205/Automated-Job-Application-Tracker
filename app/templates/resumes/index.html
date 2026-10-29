@@ -3,11 +3,122 @@
 {% block title %}Resumes{% endblock %}
 {% block page_title %}Resume Management{% endblock %}
 
-{% block content %}
-<div class="empty-state">
-  <i data-lucide="folder" class="empty-state-icon"></i>
-  <h2 class="empty-state-title">No resumes uploaded</h2>
-  <p class="empty-state-desc">Upload tailored resumes (PDF or DOCX) to associate them with your applications.</p>
-</div>
+{% block topbar_actions %}
+<button type="button" class="btn btn-primary btn-sm" data-modal-target="upload-resume-modal">
+  <i data-lucide="upload"></i>
+  <span>Upload Resume</span>
+</button>
 {% endblock %}
 
+{% block content %}
+<div class="card" style="margin-bottom: 24px;">
+  <div class="card-header">
+    <div>
+      <h2 class="card-title">Uploaded Resumes</h2>
+      <p class="text-sm">Manage resume versions to link with specific job applications.</p>
+    </div>
+    <button type="button" class="btn btn-primary btn-sm" data-modal-target="upload-resume-modal">
+      <i data-lucide="upload"></i>
+      <span>Upload Resume</span>
+    </button>
+  </div>
+
+  {% if resumes %}
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Document</th>
+            <th>Type</th>
+            <th>Size</th>
+            <th>Uploaded</th>
+            <th>Linked Applications</th>
+            <th style="text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for resume in resumes %}
+            <tr>
+              <td>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <i data-lucide="file" style="color: var(--primary); width: 18px; height: 18px;"></i>
+                  <span style="font-weight: 500;">{{ resume.original_filename }}</span>
+                </div>
+              </td>
+              <td>
+                {% if resume.original_filename.lower().endswith('.pdf') %}
+                  <span class="badge" style="background: #FEF2F2; color: #DC2626; border-color: #FECACA;">PDF</span>
+                {% else %}
+                  <span class="badge" style="background: #EFF6FF; color: #2563EB; border-color: #BFDBFE;">DOCX</span>
+                {% endif %}
+              </td>
+              <td class="text-sm text-muted">
+                {% if resume.file_size < 1048576 %}
+                  {{ (resume.file_size / 1024) | round(1) }} KB
+                {% else %}
+                  {{ (resume.file_size / 1048576) | round(2) }} MB
+                {% endif %}
+              </td>
+              <td class="text-sm text-muted">
+                {{ resume.created_at.strftime('%b %d, %Y') }}
+              </td>
+              <td class="text-sm">
+                {{ resume.applications | length }} applications
+              </td>
+              <td style="text-align: right;">
+                <div style="display: inline-flex; gap: 8px; align-items: center;">
+                  <a href="{{ url_for('resumes.download', resume_id=resume.id) }}" class="btn btn-secondary btn-sm" title="Download">
+                    <i data-lucide="download"></i>
+                    <span>Download</span>
+                  </a>
+                  <form action="{{ url_for('resumes.delete', resume_id=resume.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this resume?');" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger btn-sm" title="Delete">
+                      <i data-lucide="trash-2"></i>
+                      <span>Delete</span>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <i data-lucide="folder" class="empty-state-icon"></i>
+      <h2 class="empty-state-title">No resumes uploaded yet</h2>
+      <p class="empty-state-desc">Upload tailored PDF or Word resumes so you can associate them with job applications.</p>
+      <button type="button" class="btn btn-primary" data-modal-target="upload-resume-modal">
+        <i data-lucide="upload"></i>
+        <span>Upload Resume</span>
+      </button>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Upload Resume Modal -->
+<div id="upload-resume-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 id="modal-title" style="font-size: 16px; font-weight: 600;">Upload Resume</h3>
+      <button type="button" class="btn-close" data-modal-close aria-label="Close" style="background: none; border: none; cursor: pointer; font-size: 18px;">&times;</button>
+    </div>
+    <form action="{{ url_for('resumes.upload') }}" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="resume_file">Select Resume File (PDF or DOCX, max 10MB)</label>
+          <input type="file" id="resume_file" name="resume_file" class="form-control" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required>
+          <div class="form-text">Files are stored securely in a private directory and accessible only to you.</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-modal-close>Cancel</button>
+        <button type="submit" class="btn btn-primary btn-sm">Upload Resume</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

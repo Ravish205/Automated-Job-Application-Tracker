@@ -1,5 +1,7 @@
 import logging
+import math
 import os
+from datetime import UTC, datetime
 from pathlib import Path
 
 from flask import Flask, jsonify, redirect, render_template, request, url_for
@@ -61,6 +63,17 @@ def create_app(config_name: str | None = None) -> Flask:
         return {
             "app_name": "Automated Job Application Tracker",
         }
+
+    # Custom Jinja template filters
+    @app.template_filter("days_remaining")
+    def days_remaining(dt: datetime | None) -> int | None:
+        if not dt:
+            return None
+        now = datetime.now(UTC)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=UTC)
+        diff_seconds = (dt - now).total_seconds()
+        return int(math.ceil(diff_seconds / 86400))
 
     return app
 
