@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Track every job application in one place{% endblock %}
+
+{% block public_content %}
+<div class="landing-page" style="background-color: var(--background);">
+  <!-- Top Navigation -->
+  <header style="border-bottom: 1px solid var(--border); padding: 14px 0; background: var(--background);">
+    <div class="container" style="display: flex; align-items: center; justify-content: space-between;">
+      <a href="{{ url_for('landing') }}" style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; color: var(--text-primary); text-decoration: none;">
+        <i data-lucide="briefcase" style="color: var(--primary);"></i>
+        <span>Application Tracker</span>
+      </a>
+      <nav style="display: flex; align-items: center; gap: 16px;">
+        <a href="#features" class="btn btn-secondary btn-sm" style="border: none;">Features</a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-secondary btn-sm">Sign in</a>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm">Create account</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section style="padding: 80px 0 60px; text-align: center; border-bottom: 1px solid var(--border); background-color: var(--background-secondary);">
+    <div class="container" style="max-width: 800px;">
+      <h1 style="font-size: 36px; font-weight: 700; color: var(--text-primary); margin-bottom: 16px; letter-spacing: -0.02em;">
+        Track every job application in one place.
+      </h1>
+      <p style="font-size: 16px; color: var(--text-secondary); margin-bottom: 28px; line-height: 1.6;">
+        Manage applications, monitor interview progress, organize resumes, and receive deadline reminders from a single dashboard.
+      </p>
+      <div style="display: flex; justify-content: center; gap: 12px;">
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary" style="padding: 10px 20px; font-size: 15px;">
+          Create account
+        </a>
+        <a href="#features" class="btn btn-secondary" style="padding: 10px 20px; font-size: 15px;">
+          View features
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" style="padding: 60px 0; background-color: var(--background);">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 48px;">
+        <h2 style="font-size: 24px; font-weight: 600; margin-bottom: 8px;">Core Capabilities</h2>
+        <p style="color: var(--text-secondary);">Engineered to keep job searches organized, structured, and auditable.</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+        <!-- Feature 1 -->
+        <div class="card">
+          <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: #EFF6FF; color: var(--primary); display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+            <i data-lucide="file-text"></i>
+          </div>
+          <h3 style="font-size: 16px; margin-bottom: 8px;">Application tracking</h3>
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
+            Create, update, and manage job applications with status stages, salary details, notes, and full audit history.
+          </p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="card">
+          <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: #EFF6FF; color: var(--primary); display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+            <i data-lucide="calendar"></i>
+          </div>
+          <h3 style="font-size: 16px; margin-bottom: 8px;">Interview management</h3>
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
+            Track interview rounds from technical screenings to executive conversations with dates, times, and meeting notes.
+          </p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="card">
+          <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: #EFF6FF; color: var(--primary); display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+            <i data-lucide="folder"></i>
+          </div>
+          <h3 style="font-size: 16px; margin-bottom: 8px;">Resume organization</h3>
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
+            Upload PDF and DOCX resume versions securely and link tailored resumes directly to specific job applications.
+          </p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="card">
+          <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: #EFF6FF; color: var(--primary); display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+            <i data-lucide="download"></i>
+          </div>
+          <h3 style="font-size: 16px; margin-bottom: 8px;">Job information extraction</h3>
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
+            Paste job posting links to extract company, role title, location, and compensation with an SSRF-protected parser.
+          </p>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="card">
+          <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: #EFF6FF; color: var(--primary); display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+            <i data-lucide="bell"></i>
+          </div>
+          <h3 style="font-size: 16px; margin-bottom: 8px;">Deadline reminders</h3>
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
+            Schedule proactive reminders for application deadlines and upcoming interview dates with timezone precision.
+          </p>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="card">
+          <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: #EFF6FF; color: var(--primary); display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+            <i data-lucide="bar-chart-2"></i>
+          </div>
+          <h3 style="font-size: 16px; margin-bottom: 8px;">Application analytics</h3>
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
+            Gain visibility into application volume, interview conversion rates, and response timelines calculated from real records.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer style="border-top: 1px solid var(--border); padding: 32px 0; background-color: var(--background-secondary); font-size: 13px; color: var(--text-secondary);">
+    <div class="container" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px;">
+      <div>
+        <p style="font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">Automated Job Application Tracker</p>
+        <p style="font-size: 12px;">Production-oriented portfolio project built with Flask, PostgreSQL, and SQLAlchemy.</p>
+      </div>
+      <div style="display: flex; gap: 20px; align-items: center;">
+        <a href="https://github.com" target="_blank" rel="noopener noreferrer" style="color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
+          <i data-lucide="github" style="width: 16px; height: 16px;"></i>
+          <span>GitHub</span>
+        </a>
+        <span style="font-size: 12px;">Privacy: User data is kept isolated and strictly private.</span>
+        <span style="font-size: 12px;">&copy; 2026 MIT License.</span>
+      </div>
+    </div>
+  </footer>
+</div>
+{% endblock %}

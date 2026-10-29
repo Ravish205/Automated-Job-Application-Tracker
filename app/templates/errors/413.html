@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}413 - File Too Large{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 40px auto; text-align: center; padding: 40px 24px;">
+  <div style="width: 56px; height: 56px; border-radius: 50%; background: #FEF2F2; color: var(--error); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+    <i data-lucide="file-x" style="width: 32px; height: 32px;"></i>
+  </div>
+  <h2 style="font-size: 20px; margin-bottom: 12px;">Payload Too Large</h2>
+  <p style="color: var(--text-secondary); margin-bottom: 24px;">The uploaded file exceeds the maximum permitted size limit (10MB).</p>
+  <a href="{{ url_for('resumes.index') }}" class="btn btn-primary">Return to Resumes</a>
+</div>
+{% endblock %}

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{% block title %}Application Tracker{% endblock %} | Automated Job Application Tracker</title>
+  
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  {% block body %}
+    {% if current_user.is_authenticated %}
+      <div class="app-shell">
+        <!-- Sidebar Navigation -->
+        <aside class="app-sidebar" aria-label="Main Navigation">
+          <a href="{{ url_for('dashboard.index') }}" class="sidebar-brand">
+            <i data-lucide="briefcase"></i>
+            <span>Job Tracker</span>
+          </a>
+          <nav class="sidebar-nav">
+            <a href="{{ url_for('dashboard.index') }}" class="nav-link {% if request.blueprint == 'dashboard' %}active{% endif %}">
+              <i data-lucide="layout-dashboard"></i>
+              <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('applications.index') }}" class="nav-link {% if request.blueprint == 'applications' %}active{% endif %}">
+              <i data-lucide="file-text"></i>
+              <span>Applications</span>
+            </a>
+            <a href="{{ url_for('applications.index') }}#interviews" class="nav-link">
+              <i data-lucide="calendar"></i>
+              <span>Interviews</span>
+            </a>
+            <a href="{{ url_for('resumes.index') }}" class="nav-link {% if request.blueprint == 'resumes' %}active{% endif %}">
+              <i data-lucide="folder"></i>
+              <span>Resumes</span>
+            </a>
+            <a href="{{ url_for('reminders.index') }}" class="nav-link {% if request.blueprint == 'reminders' %}active{% endif %}">
+              <i data-lucide="bell"></i>
+              <span>Reminders</span>
+            </a>
+            <a href="{{ url_for('analytics.index') }}" class="nav-link {% if request.blueprint == 'analytics' %}active{% endif %}">
+              <i data-lucide="bar-chart-2"></i>
+              <span>Analytics</span>
+            </a>
+          </nav>
+          <div class="sidebar-footer">
+            <form action="{{ url_for('auth.logout') }}" method="POST">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="nav-link" style="width: 100%; border: none; background: transparent; cursor: pointer; text-align: left;">
+                <i data-lucide="log-out"></i>
+                <span>Sign out</span>
+              </button>
+            </form>
+          </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <div class="app-main">
+          <header class="app-topbar">
+            <div class="topbar-left">
+              <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+            </div>
+            <div class="topbar-right">
+              {% block topbar_actions %}{% endblock %}
+              <div class="user-info text-sm" style="color: var(--text-secondary);">
+                <span>{{ current_user.full_name }}</span>
+              </div>
+            </div>
+          </header>
+
+          <main class="page-content" id="main-content">
+            <div class="alert-container">
+              {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                  {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category != 'message' else 'info' }}" role="alert">
+                      <span>{{ message }}</span>
+                      <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close" style="background: none; border: none; cursor: pointer; font-size: 16px;">&times;</button>
+                    </div>
+                  {% endfor %}
+                {% endif %}
+              {% endwith %}
+            </div>
+
+            {% block content %}{% endblock %}
+          </main>
+        </div>
+      </div>
+    {% else %}
+      <!-- Public Layout -->
+      <main id="main-content">
+        <div class="container" style="padding-top: 16px;">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <div class="alert-container">
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category if category != 'message' else 'info' }}" role="alert">
+                    <span>{{ message }}</span>
+                    <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close" style="background: none; border: none; cursor: pointer; font-size: 16px;">&times;</button>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endwith %}
+        </div>
+        {% block public_content %}{% endblock %}
+      </main>
+    {% endif %}
+  {% endblock %}
+
+  <!-- Core Scripts -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block scripts %}{% endblock %}
+  <script>
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  </script>
+</body>
+</html>

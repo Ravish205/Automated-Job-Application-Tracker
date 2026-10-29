@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}403 - Forbidden{% endblock %}
+
+{% block public_content %}
+<div class="container" style="max-width: 600px; padding: 80px 16px; text-align: center;">
+  <div style="width: 56px; height: 56px; border-radius: 50%; background: #FFFBEB; color: var(--warning); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+    <i data-lucide="shield-alert" style="width: 32px; height: 32px;"></i>
+  </div>
+  <h1 style="font-size: 24px; margin-bottom: 12px;">403 - Forbidden</h1>
+  <p style="color: var(--text-secondary); margin-bottom: 24px;">You do not have permission to access the requested resource.</p>
+  <a href="{{ url_for('landing') }}" class="btn btn-secondary">Return Home</a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 40px auto; text-align: center; padding: 40px 24px;">
+  <div style="width: 56px; height: 56px; border-radius: 50%; background: #FFFBEB; color: var(--warning); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+    <i data-lucide="shield-alert" style="width: 32px; height: 32px;"></i>
+  </div>
+  <h2 style="font-size: 20px; margin-bottom: 12px;">Access Forbidden</h2>
+  <p style="color: var(--text-secondary); margin-bottom: 24px;">You do not have permission to view or modify this record.</p>
+  <a href="{{ url_for('dashboard.index') }}" class="btn btn-primary">Return to Dashboard</a>
+</div>
+{% endblock %}
