@@ -53,3 +53,4 @@ jobs:
           SECRET_KEY: ci-test-secret-key-32-bytes-minimum-value
         run: |
           pytest --cov=app --cov-report=term-missing
+

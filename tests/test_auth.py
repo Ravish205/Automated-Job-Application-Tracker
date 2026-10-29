@@ -45,3 +45,4 @@ def test_user_password_hashing(db_session):
     assert user.password_hash != "MySecurePass123!"
     assert user.check_password("MySecurePass123!") is True
     assert user.check_password("WrongPassword") is False
+

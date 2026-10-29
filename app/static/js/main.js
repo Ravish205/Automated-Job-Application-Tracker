@@ -78,3 +78,4 @@ async function fetchWithCsrf(url, options = {}) {
 
   return response.json();
 }
+

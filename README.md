@@ -202,3 +202,4 @@ ruff format --check .
 ## 13. License
 
 Distributed under the MIT License. See [LICENSE](LICENSE) for details.
+

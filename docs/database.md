@@ -92,3 +92,4 @@ Audit log of application and job search events.
 - `event_type` (VARCHAR(50), NOT NULL): Event classification (`application_created`, `status_changed`, etc.).
 - `description` (VARCHAR(255), NOT NULL): Human-readable event description.
 - `created_at` (TIMESTAMP WITH TIME ZONE, NOT NULL, INDEX): Event timestamp in UTC.
+

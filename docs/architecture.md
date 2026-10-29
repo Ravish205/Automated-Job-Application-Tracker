@@ -53,3 +53,4 @@ The **Automated Job Application Tracker** is designed following a modular monoli
 - `migrations/`: Alembic database version control and migration scripts.
 - `tests/`: Automated unit, integration, and security test suites using pytest.
 - `docs/`: Technical specifications and runbooks.
+
